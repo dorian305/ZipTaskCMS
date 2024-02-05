@@ -2,6 +2,8 @@
 
 use Illuminate\Support\Facades\Route;
 
+use App\Models\Page;
+
 /*
 |--------------------------------------------------------------------------
 | Web Routes
@@ -15,4 +17,21 @@ use Illuminate\Support\Facades\Route;
 
 Route::get('/', function () {
     return view('welcome');
+});
+
+
+// Render the page template
+Route::get('/pages/{slug}', function ($slug) {
+    // Get the page
+    $page = Page::where('slug', $slug)->first();
+
+
+    // If the publishing date isn't in the past, abort
+    $publishedInThePast = strtotime($page->published_at) < strtotime(date('Y-m-d H:i:s'));
+    if (!$publishedInThePast) abort(404);
+
+    
+    return view('page', [
+        'page' => $page,
+    ]);
 });
